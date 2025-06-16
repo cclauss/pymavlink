@@ -16,25 +16,21 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
 
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install flake8 pytest pytest-mock numpy
-          if [ "${{ matrix.python-version }}" != "3.5" ]
-          then
-            pip install mypy
-          fi
+          python3 -m pip install flake8 mypy numpy pytest pytest-mock
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           sudo apt update
           sudo apt install -y libgtest-dev g++ tshark
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: '16'
 
@@ -45,8 +41,8 @@ jobs:
           # exit-zero treats all errors as warnings. The GitHub web ui editor is 127 chars wide
           SELECT=C,E10,E11,E401,E502,E703,E8,E9,F,W191,W291,W292,W293,W391
           flake8 . --count --exit-zero --select=${SELECT} --max-complexity=10 --max-line-length=127 --statistics
-      # NOTE: we must do all testing on the installed python package, not
-      # on the build tree. Otherwise the testing is invalid and may not
+      # NOTE: we must do all testing on the installed Python package, not
+      # on the build tree. Otherwise, the testing is invalid and may not
       # indicate the code actually works
       #
       # Set pythonpath
@@ -69,11 +65,11 @@ jobs:
       - name: Generate messages
         run: |
           ./test_generate_all.sh
-      - name : Test generators
+      - name: Test generators
         run: |
           ./test_generator.sh
 
-      - name : Test JavaScript Bindings - generated tests and Mocha tests
+      - name: Test JavaScript Bindings - generated tests and Mocha tests
         run: |
           ./test_gen_js.sh && cd generator/javascript && npm test && cd -
 
@@ -90,17 +86,17 @@ jobs:
       matrix:
         node-version: ['12', '14', '16', '18', '20']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
       - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: 3.8
       - name: Install dependencies
         run: |
           pip install future lxml
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install mavlink message
